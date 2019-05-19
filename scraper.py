@@ -37,7 +37,7 @@ ids = {'AIME': 3416, 'AMC 10': 3414, 'AMC 12': 3415, 'TSTST': 3424, 'USAJMO': 34
 # Va capito se conviene usare "multiple" o "more"
 
 scraper = Scraper()
-anni = scraper.fetch_more_items(ids['AMC 12'])
+anni = scraper.fetch_more_items(ids['TSTST'])
 for a in anni:
     problemi = scraper.fetch_more_items(a['item_id'])
     print(a['item_text'], a['item_id'], len(problemi))
