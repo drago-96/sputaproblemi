@@ -1,2 +1,3 @@
 sputaproblemi.db
 *.pyc
+build/to_compile*
