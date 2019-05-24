@@ -1,3 +1,5 @@
+from data import *
+
 import requests
 import re
 import json
@@ -35,9 +37,27 @@ class Scraper:
 ids = {'AIME': 3416, 'AMC 10': 3414, 'AMC 12': 3415, 'TSTST': 3424, 'USAJMO': 3420, 'USAMO': 3409}
 
 # Va capito se conviene usare "multiple" o "more"
+def import_gara(nome_gara):
+    scraper = Scraper()
+    session = Session()
+    anni = scraper.fetch_more_items(ids[nome_gara])
+    for a in anni:
+        print("Anno id:", a['item_id'])
+        problemi = scraper.fetch_more_items(a['item_id'])
+        gara = Gara(nome=nome_gara, anno=int(a['item_text'][:4]), nazione="USA", aops_id=int(a['item_id']))
+        session.add(gara)
+        for p in problemi:
+            if p['item_type'] != "post":
+                continue
+            if p['post_data']['post_number'] != 0:
+                url = "https://artofproblemsolving.com/community/c{}h{}".format(p['post_data']['category_id'], p['post_data']['topic_id'])
+                body = p['post_data']['post_canonical']
+                num = p['item_text']
+                if num == "":
+                    continue
+                prob = Problema(testo=body, aops_id=int(a['item_id']), aops_link=url, gara=gara, numero=num)
+                session.add(prob)
 
-scraper = Scraper()
-anni = scraper.fetch_more_items(ids['TSTST'])
-for a in anni:
-    problemi = scraper.fetch_more_items(a['item_id'])
-    print(a['item_text'], a['item_id'], len(problemi))
+    session.commit()
+
+import_gara("AIME")

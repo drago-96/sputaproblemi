@@ -1,3 +1,10 @@
-sputaproblemi.db
 *.pyc
-build/to_compile*
+venv/
+__pycache__/
+
+sputaproblemi.db
+config.py
+
+build/*
+!build/latexmkrc
+!build/olympiad.asy
