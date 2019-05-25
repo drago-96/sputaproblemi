@@ -34,7 +34,7 @@ class Scraper:
         return data['response']['items']
 
 
-ids = {'AIME': 3416, 'AMC 10': 3414, 'AMC 12': 3415, 'TSTST': 3424, 'USAJMO': 3420, 'USAMO': 3409}
+ids = {'AMC 8': 3413, 'SDML': 312160, 'SDMO': 250744, 'AIME': 3416, 'AMC 10': 3414, 'AMC 12': 3415, 'Suoth Africa': 3199, 'Mexico': 3176, 'India': 3176, 'Spain': 3200, 'TSTST': 3424, 'USAJMO': 3420, 'USAMO': 3409, 'Russia': 3371, 'OMO': 3431, 'IMO': 3222, 'Balkan MO': 3225, 'RMM': 3238}
 
 # Va capito se conviene usare "multiple" o "more"
 def import_gara(nome_gara):
