@@ -10,9 +10,13 @@ engine = create_engine('sqlite:///sputaproblemi.db')
 Session = sessionmaker(engine)
 Base = declarative_base(engine)
 
-def get_random_problem():
+def get_random_problem(country=None, gara=None):
     session = Session()
-    return session.query(Problema).order_by(func.random()).first()
+    if country == None:
+        return session.query(Problema).order_by(func.random()).first()
+    if gara == None:
+        return session.query(Problema).join(Gara).filter(Gara.nazione==country).order_by(func.random()).first()
+    return session.query(Problema).join(Gara).filter(Gara.nazione==country, Gara.nome==gara).order_by(func.random()).first()
 
 class Gara(Base):
     __tablename__ = 'gara'
@@ -50,6 +54,7 @@ def create_db():
     session = Session()
     Base.metadata.create_all(engine)
     session.commit()
+    print("Database creato")
 
 if __name__=="__main__":
     create_db()
