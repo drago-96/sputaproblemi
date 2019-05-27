@@ -4,6 +4,7 @@ __pycache__/
 
 sputaproblemi.db
 config.py
+gare/
 
 build/*
 !build/latexmkrc
