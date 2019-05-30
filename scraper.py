@@ -34,7 +34,7 @@ class Scraper:
         return data['response']['items']
 
 
-ids = {'AMC 8': 3413, 'SDML': 312160, 'SDMO': 250744, 'AIME': 3416, 'AMC 10': 3414, 'AMC 12': 3415, 'Suoth Africa': 3199, 'Mexico': 3176, 'India': 3176, 'Spain': 3200, 'TSTST': 3424, 'USAJMO': 3420, 'USAMO': 3409, 'Russia': 3371, 'OMO': 3431, 'IMO': 3222, 'Balkan MO': 3225, 'RMM': 3238}
+ids = {'AMC 8': 3413, 'SDML': 312160, 'SDMO': 250744, 'AIME': 3416, 'AMC 10': 3414, 'AMC 12': 3415, 'South Africa': 3387, 'Mexico': 3344, 'India': 3309, 'Spain': 3388, 'TSTST': 3424, 'USAJMO': 3420, 'USAMO': 3409, 'Russia': 3371, 'OMO': 3431, 'IMO': 3222, 'Balkan': 3225, 'RMM': 3238}
 
 # Va capito se conviene usare "multiple" o "more"
 def import_gara(nome_gara):
@@ -42,22 +42,40 @@ def import_gara(nome_gara):
     session = Session()
     anni = scraper.fetch_more_items(ids[nome_gara])
     for a in anni:
-        print("Anno id:", a['item_id'])
         problemi = scraper.fetch_more_items(a['item_id'])
         gara = Gara(nome=nome_gara, anno=int(a['item_text'][:4]), nazione="USA", aops_id=int(a['item_id']))
         session.add(gara)
+        taken = 0
         for p in problemi:
-            if p['item_type'] != "post":
+            num = p['item_text']
+            if p['item_type'] != "post" or num == "" or p['post_data']['poster_id'] == 0:
                 continue
             if p['post_data']['post_number'] != 0:
                 url = "https://artofproblemsolving.com/community/c{}h{}".format(p['post_data']['category_id'], p['post_data']['topic_id'])
                 body = p['post_data']['post_canonical']
-                num = p['item_text']
-                if num == "":
+
+                m = re.findall(r"\[[^\\]+?\]", body)
+                if "[list]" in m:
                     continue
+
+                body = body.replace("[asy]","\n\\begin{center}\n\\begin{asy}")
+                body = body.replace("[/asy]","\n\\end{asy}\n\\end{center}")
+
+                body = re.sub(r"\[i\](.*?)\[/i\]", r"\\textit{\1}", body)
+                body = re.sub(r"\[u\](.*?)\[/u\]", r"\\underline{\1}", body)
+                body = re.sub(r"\[b\](.*?)\[/b\]", r"\\textbf{\1}", body)
+                body = re.sub(r"unitsize\(.*?\);", r"", body)
+                body = re.sub(r"size\(.*?\);", r"", body)
+
+                body = body.replace(r"\qquad", r"\\")
+                if body.count("?") == 1:
+                    body = body.replace("?", r"?\\")
+
                 prob = Problema(testo=body, aops_id=int(a['item_id']), aops_link=url, gara=gara, numero=num)
                 session.add(prob)
+                taken += 1
+        print("Anno id:", a['item_id'], len(problemi), taken)
 
     session.commit()
 
-import_gara("AIME")
+import_gara("AMC 10")

@@ -8,7 +8,7 @@ import argparse
 image = 'build/problema.jpg'
 
 def write_problem():
-    res = get_random_problem(country="ITA", gara="Cesenatico")
+    res = get_random_problem()
     problema = res.testo
     titolo = res.get_titolo()
 
@@ -22,9 +22,10 @@ def write_problem():
     	outfile.write(out_str)
 
 def do_compile():
-    res = subprocess.call("cd build && latexmk -interaction=nonstopmode -pdf to_compile && latexmk -c", shell=True)
+    res = subprocess.call("cd build && latexmk -interaction=nonstopmode -pdf to_compile", shell=True)
     if res:
         return res
+    subprocess.call("cd build && latexmk -c && rm to_compile-*", shell=True)
     subprocess.call("cd build && convert -density 300 to_compile.pdf -quality 100 problema.jpg", shell=True)
 
 
