@@ -6,8 +6,8 @@ import config
 from compile import *
 
 
-def get_and_compile(session):
-    res = get_random_problem(session)
+def get_and_compile(session, tipo):
+    res = get_random_problem(session, diff=tipo)
     problema = res.testo
     titolo = res.get_titolo()
 
@@ -20,7 +20,9 @@ def get_and_compile(session):
 def sputa(bot, update, **kwargs):
     print(update.message.chat.id)
     session = Session()
-    problem, errors = get_and_compile(session)
+    tipo = kwargs['args'][0]
+    print(tipo)
+    problem, errors = get_and_compile(session, tipo)
     kwargs['chat_data']['problema'] = problem
     kwargs['chat_data']['DBsess'] = session
 
@@ -88,14 +90,14 @@ updater.dispatcher.add_handler(CommandHandler('hello', hello))
 updater.dispatcher.add_handler(CommandHandler('sputa', sputa))
 
 conv_handler = ConversationHandler(
-    entry_points = [CommandHandler('problema', sputa, pass_chat_data=True)],
+    entry_points = [CommandHandler('problema', sputa, pass_chat_data=True, pass_args=True)],
     states = {
         1: [CommandHandler('si', upload, pass_chat_data=True),
             CommandHandler('no', rifiuta, pass_chat_data=True),
             CommandHandler('modifica', modifica, pass_chat_data=True)],
         2: [MessageHandler(Filters.text, scrivi, pass_chat_data=True)]
     },
-    fallbacks = [CommandHandler('cancel', cancel)]
+    fallbacks = [CommandHandler('cancel', cancel, pass_chat_data=True)]
 )
 
 updater.dispatcher.add_handler(conv_handler)
