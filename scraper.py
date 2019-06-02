@@ -58,6 +58,7 @@ def import_gara(nome_gara):
                 if "[list]" in m:
                     continue
 
+                body = body.replace("[asy]\n","[asy]")
                 body = body.replace("[asy]","\n\\begin{center}\n\\begin{asy}")
                 body = body.replace("[/asy]","\n\\end{asy}\n\\end{center}")
 

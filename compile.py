@@ -36,14 +36,17 @@ if __name__=="__main__":
 
     parser = argparse.ArgumentParser(description='Compila i problemi da sputare')
     parser.add_argument('--upload', action='store_true')
+    parser.add_argument('--nowrite', action='store_true')
     args = parser.parse_args()
 
     session = Session()
-    res = get_random_problem(session)
-    problema = res.testo
-    titolo = res.get_titolo()
 
-    write_problem(problema, titolo)
+    if not args.nowrite:
+        res = get_random_problem(session)
+        problema = res.testo
+        titolo = res.get_titolo()
+
+        write_problem(problema, titolo)
     res = do_compile()
 
     if res:
