@@ -47,6 +47,7 @@ def read_source_gas(path):
     with open(path) as infile:
         doc = str(infile.read())
     res = []
+    doc = re.sub(r"\\ab{(\d+)}{(\d+)}", r"\1", doc)
     for p in re.finditer(regex, doc, re.DOTALL):
         res.append(p.groups()[0].strip())
     return res
@@ -116,5 +117,5 @@ gare = [
     {"nome": "Archimede", "regex": "archimede_triennio_(\d+).tex", "fun": read_source_archi2, "dir": "Archimede", "diff": 1}]
 
 
-for g in gare:
-    import_gara("gare", g)
+# for g in gare:
+#     import_gara("gare", g)
