@@ -5,6 +5,10 @@ import datetime
 import config
 from compile import *
 
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 
 def get_and_compile(session, tipo):
     res = get_random_problem(session, diff=tipo)
@@ -13,15 +17,17 @@ def get_and_compile(session, tipo):
 
     write_problem(problema, titolo)
     err = do_compile()
+    if err:
+        logging.warning("Compilazione fallita!\n{}".format(problema))
 
     return res, err
 
 
 def sputa(bot, update, **kwargs):
-    print(update.message.chat.id)
     session = Session()
     tipo = kwargs['args'][0]
-    print(tipo)
+    logging.info("Richiesta ricevuta da {}; difficoltà: {}".format(update.message.chat.id, tipo))
+
     problem, errors = get_and_compile(session, tipo)
     kwargs['chat_data']['problema'] = problem
     kwargs['chat_data']['DBsess'] = session
@@ -35,6 +41,7 @@ def sputa(bot, update, **kwargs):
 
 def upload(bot, update, **kwargs):
     p = kwargs['chat_data']['problema']
+    logging.info("Sto caricando su Instagram il problema {}".format(p))
     sess = kwargs['chat_data']['DBsess']
     oggi = datetime.date.today()
     p.dato = oggi

@@ -10,7 +10,7 @@ engine = create_engine('sqlite:///sputaproblemi.db')
 Session = sessionmaker(engine)
 Base = declarative_base(engine)
 
-def get_random_problem(session, diff=None, country=None, gara=None):
+def get_random_problem(session, diff=None, country=None, gara=None, anno=None):
     ret = session.query(Problema).join(Gara).filter(Problema.dato == None)
     if country != None:
         ret = ret.filter(Gara.nazione==country)
@@ -18,6 +18,8 @@ def get_random_problem(session, diff=None, country=None, gara=None):
         ret = ret.filter(Gara.nome==gara)
     if diff != None:
         ret = ret.filter(Problema.difficolta==diff)
+    if anno != None:
+        ret = ret.filter(Gara.anno==anno)
     return ret.order_by(func.random()).first()
 
 class Gara(Base):
