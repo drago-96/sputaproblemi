@@ -1,5 +1,7 @@
 import os
 import sys
+import random
+
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -17,9 +19,14 @@ def get_random_problem(session, diff=None, country=None, gara=None, anno=None):
     if gara != None:
         ret = ret.filter(Gara.nome==gara)
     if diff != None:
-        ret = ret.filter(Problema.difficolta==diff)
+        if diff==5 and random.random()<0.5:
+            ret = ret.filter(Gara.nome=="Cesenatico")
+        else:
+            ret = ret.filter(Problema.difficolta==diff)
     if anno != None:
         ret = ret.filter(Gara.anno==anno)
+    else:
+        ret = ret.filter(Gara.anno>=1990)
     return ret.order_by(func.random()).first()
 
 class Gara(Base):

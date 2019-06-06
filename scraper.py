@@ -34,17 +34,39 @@ class Scraper:
         return data['response']['items']
 
 
-ids = {'AMC 8': 3413, 'SDML': 312160, 'SDMO': 250744, 'AIME': 3416, 'AMC 10': 3414, 'AMC 12': 3415, 'South Africa': 3387, 'Mexico': 3344, 'India': 3309, 'Spain': 3388, 'TSTST': 3424, 'USAJMO': 3420, 'USAMO': 3409, 'Russia': 3371, 'OMO': 3431, 'IMO': 3222, 'Balkan': 3225, 'RMM': 3238}
+gare = [
+    {"nome": 'AMC 8', "id": 3413, "diff": 1},
+    {"nome": 'SDML', "id": 312160, "diff": 1},
+    {"nome": 'AIME', "id": 3416, "diff": 3},
+    {"nome": 'AMC 10', "id": 3414, "diff": 3},
+    {"nome": 'SDMO', "id": 250744, "diff": 3},
+    {"nome": 'AMC 12', "id": 3415, "diff": 3},
+    {"nome": 'South Africa', "id": 3387, "diff": 5},
+    {"nome": 'Spain', "id": 3388, "diff": 5},
+    {"nome": 'Mexico', "id": 3344, "diff": 5},
+    {"nome": 'India', "id": 3309, "diff": 5},
+    {"nome": 'USAJMO', "id": 3420, "diff": 5},
+    {"nome": 'TSTST', "id": 3424, "diff": 6},
+    {"nome": 'RMM', "id": 3238, "diff": 6},
+    {"nome": 'Russia', "id": 3371, "diff": 6},
+    {"nome": 'USAMO', "id": 3409, "diff": 6},
+    {"nome": 'OMO', "id": 3431, "diff": 6},
+    {"nome": 'IMO', "id": 3222, "diff": 6},
+    {"nome": 'Balkan', "id": 3225, "diff": 6},
+    {"nome": 'RMM', "id": 3238, "diff": 6}
+]
+
 
 # Va capito se conviene usare "multiple" o "more"
-def import_gara(nome_gara):
+def import_gara(gara):
+    print("Gara: ", gara['nome'])
     scraper = Scraper()
     session = Session()
-    anni = scraper.fetch_more_items(ids[nome_gara])
+    anni = scraper.fetch_more_items(gara['id'])
     for a in anni:
         problemi = scraper.fetch_more_items(a['item_id'])
-        gara = Gara(nome=nome_gara, anno=int(a['item_text'][:4]), nazione="USA", aops_id=int(a['item_id']))
-        session.add(gara)
+        gara_obj = Gara(nome=gara['nome'], anno=int(a['item_text'][:4]), aops_id=int(a['item_id']))
+        session.add(gara_obj)
         taken = 0
         for p in problemi:
             num = p['item_text']
@@ -72,11 +94,12 @@ def import_gara(nome_gara):
                 if body.count("?") == 1:
                     body = body.replace("?", r"?\\")
 
-                prob = Problema(testo=body, aops_id=int(a['item_id']), aops_link=url, gara=gara, numero=num)
+                prob = Problema(testo=body, aops_id=int(a['item_id']), aops_link=url, gara=gara_obj, numero=num, difficolta=gara['diff'])
                 session.add(prob)
                 taken += 1
         print("Anno id:", a['item_id'], len(problemi), taken)
 
     session.commit()
 
-import_gara("AMC 10")
+for g in gare:
+    import_gara(g)

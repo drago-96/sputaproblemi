@@ -16,18 +16,18 @@ def write_problem(problema, titolo):
     with open("build/to_compile.tex", "w") as outfile:
     	outfile.write(out_str)
 
-def do_compile():
+def do_compile(path):
     f = open("compile_log","wb")
     dn = open("/dev/null","w")
     res = subprocess.call("cd build && latexmk -interaction=nonstopmode -pdf to_compile", shell=True, stdout=f, stderr=f)
     subprocess.call("cd build && latexmk -c && rm to_compile-*", shell=True, stderr=dn, stdout=dn)
     if res:
         return res
-    subprocess.call("cd build && convert -density 300 to_compile.pdf -quality 100 problema.jpg", shell=True)
+    subprocess.call("cd build && convert -density 300 to_compile.pdf -quality 100 {}".format(path), shell=True)
 
 
-def upload_IG():
-    image = 'build/problema.jpg'
+def upload_IG(path):
+    image = 'build/'+path
     with client(config.IG_username, config.IG_password) as cli:
         cli.upload(image, story=True)
 
