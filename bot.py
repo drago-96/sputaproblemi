@@ -1,6 +1,8 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, ConversationHandler, Filters
 
 import datetime
+from functools import wraps
+
 
 import config
 from compile import *
@@ -8,6 +10,19 @@ from compile import *
 import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+
+LIST_OF_ADMINS = config.admins
+
+def restricted(func):
+    @wraps(func)
+    def wrapped(bot, update, *args, **kwargs):
+        user_id = update.effective_user.id
+        if user_id not in LIST_OF_ADMINS:
+            print("Unauthorized access denied for {}.".format(user_id))
+            return
+        return func(bot, update, *args, **kwargs)
+    return wrapped
 
 
 def get_and_compile(session, tipo, path):
@@ -22,7 +37,7 @@ def get_and_compile(session, tipo, path):
 
     return res, err
 
-
+@restricted
 def sputa(bot, update, **kwargs):
     session = Session()
     try:
@@ -97,6 +112,7 @@ def cancel(bot, update, **kwargs):
     kwargs['chat_data']['DBsess'].close()
     return ConversationHandler.END
 
+@restricted
 def elimina(bot, update, **kwargs):
     try:
         nome = kwargs['args'][0]
@@ -115,7 +131,7 @@ def elimina(bot, update, **kwargs):
 updater = Updater(config.token)
 
 
-updater.dispatcher.add_handler(CommandHandler('sputa', sputa))
+#updater.dispatcher.add_handler(CommandHandler('sputa', sputa))
 
 conv_handler = ConversationHandler(
     entry_points = [CommandHandler('problema', sputa, pass_chat_data=True, pass_args=True)],
@@ -125,7 +141,8 @@ conv_handler = ConversationHandler(
             CommandHandler('modifica', modifica, pass_chat_data=True)],
         2: [MessageHandler(Filters.text, scrivi, pass_chat_data=True)]
     },
-    fallbacks = [CommandHandler('cancel', cancel, pass_chat_data=True)]
+    fallbacks = [CommandHandler('cancel', cancel, pass_chat_data=True)],
+    per_user = False
 )
 
 updater.dispatcher.add_handler(CommandHandler('elimina', elimina, pass_job_queue=True, pass_args=True))
