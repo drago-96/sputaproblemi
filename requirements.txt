@@ -21,7 +21,7 @@ moviepy==0.2.3.2
 numpy==1.16.3
 Pillow==6.0.0
 pluggy==0.11.0
-py==1.8.0
+py==1.10.0
 pycparser==2.19
 pytest==4.5.0
 pytest-cov==2.5.1
